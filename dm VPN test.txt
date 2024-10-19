@@ -40,10 +40,10 @@ end
 
 ************************************************
 
-SITE1-R1: to CORP-VPN1
+SITE1-R1: to CORP-VPNFRED
 CONFIG T
 !
-vrf definition CORP-VPN1
+vrf definition CORP-VPNFRED
  address-family ipv4
  exit-address-family
 !
@@ -53,7 +53,7 @@ crypto isakmp policy 10
  hash md5
  authentication pre-share
  group 2
-crypto isakmp key cisco address 200.0.0.11
+crypto isakmp key pancit123 address 200.0.0.71
 !         
 crypto ipsec transform-set MYSET esp-aes esp-md5-hmac
   mode tunnel 
@@ -62,31 +62,29 @@ crypto ipsec profile MyProfile
 set transform-set MYSET
 !
 crypto map vpn 1 ipsec-isakmp 
- set peer 200.0.0.11
+ set peer 200.0.0.71
  set transform-set MYSET
  match address 101
 !
 interface Tunnel1
- description vpn-GRE TUNNEL TO r2
- vrf forwarding CORP-VPN1
- tunnel source 200.0.0.12
- tunnel destination 200.0.0.11
- ip address 172.11.12.2 255.255.255.0
+ description vpn-GRE TUNNEL TO FRED
+ vrf forwarding CORP-VPNFRED
+ tunnel source 200.0.0.62
+ tunnel destination 200.0.0.71
+ ip address 172.62.71.1 255.255.255.0
  !!task 2 sa examMO.
  tunnel protection ipsec profile MyProfile
 !
-interface fa 0/2/0
- ip address 200.0.0.12 255.255.255.0
- ip virtual-reassembly
+interface fa 0/0
  crypto map vpn
  no shut
 !
 router eigrp CORP-VPN1
 address-family ipv4 unicast autonomous-system 100
- network 172.11.12.0 0.0.0.255
- network 10.12.1.0 0.0.0.255
+ network 172.62.71.0 0.0.0.255
+ network 10.62.1.0 0.0.0.255
 !
-access-list 101 permit gre host 200.0.0.12 host 200.0.0.11
+access-list 101 permit gre host 200.0.0.62 host 200.0.0.71
 !
 
 
@@ -100,30 +98,30 @@ SITE1-R1: odd:
 CONFIG T
 crypto isakmp policy 1
  authentication pre-share
-crypto isakmp key cisco address 200.0.0.11
+crypto isakmp key pancit123 address 200.0.0.62
 !         
 crypto ipsec transform-set strong esp-3des esp-sha-hmac 
 !
 crypto map vpn 2 ipsec-isakmp 
- set peer 200.0.0.11
+ set peer 200.0.0.52
  set transform-set strong 
  match address 102
 !
 no int tunnel 1
 interface Tunnel2
- description vpn-GRE TUNNEL TO von11
- ip address 172.11.12.2 255.255.255.0
- tunnel source 200.0.0.12
- tunnel destination 200.0.0.11
+ description vpn-GRE TUNNEL TO harap52
+ ip address 172.52.62.2 255.255.255.0
+ tunnel source 200.0.0.62
+ tunnel destination 200.0.0.52
 !
 !
 no router ospf 1
 router ospf 1
- network 172.11.12.0 0.0.0.255 area 0
- network 10.12.1.0 0.0.0.255 area 0
+ network 172.52.62.0 0.0.0.255 area 0
+ network 10.52.62.0 0.0.0.255 area 0
 !
 !
-access-list 102 permit gre host 200.0.0.12 host 200.0.0.11
+access-list 102 permit gre host 200.0.0.62 host 200.0.0.52
 !
 
 
